@@ -1,3 +1,4 @@
+//% groups='["Readings", "Basic", "Advanced"]'
 //% weight=100 color=#431FAE
 namespace MPU6050 {
     // Constants
@@ -11,10 +12,18 @@ namespace MPU6050 {
         let yaw_vel = 0;
         let roll_vel = 0;
 
+        // Axis rotational positions
+        let pitch = 0;
+        let yaw = 0;
+        let roll = 0;
+
         // Axis calibration numbers
-        let pitch_calibration = 0
-        let yaw_calibration = 0
-        let roll_calibration = 0
+        let pitch_calibration = 0;
+        let yaw_calibration = 0;
+        let roll_calibration = 0;
+
+        // Variables
+        let auto_update = false;
 
 
 
@@ -44,27 +53,57 @@ namespace MPU6050 {
             }
         }
 
+
+
     //Blocks
-        //% block="Raw read 3 axis"
-        export function raw_read_3_axis(): void {
-            // Load data into a buffer so we don't have to call it multiple times
-            let buffer = read_block(0x43, 6);
+        // Final Values
+            //% group="Readings"
+            //% block="Pitch velocity"
+            export function pitch_velocity(): number { return pitch_vel }
 
-            // Bitshift or something chatgpt did this
-            let pitch_buffer = ((buffer[0] << 8) | buffer[1]);
-            let yaw_buffer = ((buffer[2] << 8) | buffer[3]);
-            let roll_buffer = ((buffer[4] << 8) | buffer[5]);
+            //% group="Readings"
+            //% block="Yaw velocity"
+            export function yaw_velocity(): number { return yaw_vel }
 
-            // Change unsigned 16 bit integer into signed integer (+ or -)
-            if (pitch_buffer & 0x8000) pitch_buffer -= 0x10000;
-            if (yaw_buffer & 0x8000) yaw_buffer -= 0x10000;
-            if (roll_buffer & 0x8000) roll_buffer -= 0x10000;
+            //% group="Readings"
+            //% block="Roll velocity"
+            export function roll_velocity(): number { return roll_vel }
 
-            pitch_vel = pitch_buffer;
-            yaw_vel = yaw_buffer;
-            roll_vel = roll_buffer;
+            //% group="Readings"
+            //% block="Pitch"
+            export function pitch_position(): number { return pitch }
+
+            //% group="Readings"
+            //% block="Yaw"
+            export function yaw_position(): number { return yaw }
+
+            //% group="Readings"
+            //% block="Roll"
+            export function roll_position(): number { return roll }
+
+
+
+        //% group="Basic"
+        //% block="Initialize gyro"
+        export function initialize(): void {
+            // Wake up the MPU6050
+            write_register(0x6B, 0x00);
+            basic.pause(10);
+
+            // Check if the MPU6050 is responsive/the right address is chosen
+            check_who_am_i()
+
+            // Set gyroscope sensitivity to 250 degrees/s
+            write_register(0x1B, 0x00);
+
+            // 42Hz low-pass filter
+            write_register(0x1A, 0x03);
+
+            // 200Hz sample rate
+            write_register(0x19, 39);
         }
 
+        //% group="Basic"
         //% block="Calibrate gyroscope for $milliseconds milliseconds"
         export function calibrate(milliseconds: number): void {
             // Initialize the sums
@@ -90,44 +129,77 @@ namespace MPU6050 {
             }
         }
 
-        //% block="Read 3 axis"
-        export function read_3_axis(): void {
-            raw_read_3_axis();
-            pitch_vel -= pitch_calibration;
-            yaw_vel -= yaw_calibration;
-            roll_vel -= roll_calibration;
-
-            pitch_vel /= 131;
-            yaw_vel /= 131;
-            roll_vel /= 131;
+        //% group="Basic"
+        //% block="Turn on auto sample"
+        export function auto_sample_on(): void {
+            auto_update = true;
         }
 
-        //% block="Initialize gyro"
-        export function initialize(): void {
-            // Wake up the MPU6050
-            write_register(0x6B, 0x00);
-            basic.pause(10);
-
-            // Check if the MPU6050 is responsive/the right address is chosen
-            check_who_am_i()
-
-            // Set gyroscope sensitivity to 250 degrees/s
-            write_register(0x1B, 0x00);
-
-            // 42Hz low-pass filter
-            write_register(0x1A, 0x03);
-
-            // 200Hz sample rate
-            write_register(0x19, 39);
+        //% group="Basic"
+        //% block="Turn off auto sample"
+        export function auto_sample_off(): void {
+            auto_update = false;
         }
 
-        // Final Values
-            //% block="Pitch velocity"
-            export function pitch(): number { return pitch_vel }
+        //% group="Basic"
+        //% block="Zero position"
+        export function zero_position(): void {
+            pitch = 0;
+            yaw = 0;
+            roll = 0;
+        }
 
-            //% block="Yaw velocity"
-            export function yaw(): number { return yaw_vel }
 
-            //% block="Roll velocity"
-            export function roll(): number { return roll_vel }
+
+        // Advanced
+            //% group="Advanced"
+            //% block="Raw read 3 axis"
+            export function raw_read_3_axis(): void {
+                // Load data into a buffer so we don't have to call it multiple times
+                let buffer = read_block(0x43, 6);
+
+                // Bitshift or something chatgpt did this
+                let pitch_buffer = ((buffer[0] << 8) | buffer[1]);
+                let yaw_buffer = ((buffer[2] << 8) | buffer[3]);
+                let roll_buffer = ((buffer[4] << 8) | buffer[5]);
+
+                // Change unsigned 16 bit integer into signed integer (+ or -)
+                if (pitch_buffer & 0x8000) pitch_buffer -= 0x10000;
+                if (yaw_buffer & 0x8000) yaw_buffer -= 0x10000;
+                if (roll_buffer & 0x8000) roll_buffer -= 0x10000;
+
+                pitch_vel = pitch_buffer;
+                yaw_vel = yaw_buffer;
+                roll_vel = roll_buffer;
+            }
+
+            //% group="Advanced"
+            //% block="Read 3 axis"
+            export function read_3_axis(): void {
+                raw_read_3_axis();
+                pitch_vel -= pitch_calibration;
+                yaw_vel -= yaw_calibration;
+                roll_vel -= roll_calibration;
+
+                pitch_vel /= 131;
+                yaw_vel /= 131;
+                roll_vel /= 131;
+            }
+
+    control.inBackground(function () {
+        while (true) {
+            if (auto_update) {
+                read_3_axis()
+                pitch += pitch_vel * 0.04;
+                yaw += yaw_vel * 0.04;
+                roll += roll_vel * 0.04;
+
+                let current_time = input.runningTimeMicros();
+
+                while ((input.runningTimeMicros()-current_time) < 40000) {basic.pause(1);}
+            } else {
+                basic.pause(10);
+            }
+        }
+    })
 }
