@@ -93,14 +93,14 @@ namespace MPU6050 {
             // Check if the MPU6050 is responsive/the right address is chosen
             check_who_am_i()
 
-            // Set gyroscope sensitivity to 250 degrees/s
-            write_register(0x1B, 0x00);
+            // Set gyroscope sensitivity to 1000 degrees/s
+            write_register(0x1B, 0x10);
 
-            // 42Hz low-pass filter
-            write_register(0x1A, 0x03);
+            // DLPF disabled, maximum bandwidth (8 kHz internal)
+            write_register(0x1A, 0x00);
 
-            // 200Hz sample rate
-            write_register(0x19, 39);
+            // 100Hz sample rate
+            write_register(0x19, 79);
         }
 
         //% group="Basic"
@@ -190,13 +190,13 @@ namespace MPU6050 {
         while (true) {
             if (auto_update) {
                 read_3_axis()
-                pitch += pitch_vel * 0.04;
-                yaw += yaw_vel * 0.04;
-                roll += roll_vel * 0.04;
+                pitch += pitch_vel * (1/100);
+                yaw += yaw_vel * (1/100);
+                roll += roll_vel * (1/100);
 
                 let current_time = input.runningTimeMicros();
 
-                while ((input.runningTimeMicros()-current_time) < 40000) {basic.pause(1);}
+                while ((input.runningTimeMicros()-current_time) < 10000) {basic.pause(1);}
             } else {
                 basic.pause(10);
             }
