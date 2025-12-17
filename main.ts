@@ -112,7 +112,6 @@ namespace MPU6050 {
             let sum_roll_vel = 0;
 
             // Collect rotational velocities over a specified amount of milliseconds
-            // (10ms steps because of the 200Hz Gyro refresh rate)
             for (let i = 0; i < milliseconds; i+=10) {
                 raw_read_3_axis();
                 sum_pitch_vel += pitch_vel;
@@ -181,9 +180,9 @@ namespace MPU6050 {
                 yaw_vel -= yaw_calibration;
                 roll_vel -= roll_calibration;
 
-                pitch_vel /= 131;
-                yaw_vel /= 131;
-                roll_vel /= 131;
+                pitch_vel /= 32.8;
+                yaw_vel /= 32.8;
+                roll_vel /= 32.8;
             }
 
     control.inBackground(function () {
