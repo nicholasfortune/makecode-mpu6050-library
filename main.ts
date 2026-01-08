@@ -198,7 +198,7 @@ namespace MPU6050 {
                     continue;
                 }
     
-                let dt = (now - last_time) / 1_000_000;
+                let dt = (now - last_time) / 1000000;
                 last_time = now;
 
                 if (dt > 0.05) {
@@ -214,5 +214,6 @@ namespace MPU6050 {
                 last_time = 0;
             }
         }
+        basic.pause(10);
     });
 }
