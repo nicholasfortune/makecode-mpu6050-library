@@ -186,21 +186,29 @@ namespace MPU6050 {
             }
 
     control.inBackground(function () {
+        let last_time = 0;
         while (true) {
             if (auto_update) {
                 let now = input.runningTimeMicros();
+    
+                if (last_time == 0) {
+                    last_time = now;
+                    basic.pause(10);
+                    continue;
+                }
+    
                 let dt = (now - lastTime) / 1000000;
-                lastTime = now;
-                
-                read_3_axis()
+                if (dt > 0.05) continue;
+                last_time = now;
+    
+                read_3_axis();
                 pitch += pitch_vel * dt;
                 yaw += yaw_vel * dt;
                 roll += roll_vel * dt;
-
-                basic.pause(10);
             } else {
-                basic.pause(10);
+                last_time = 0;
             }
+            basic.pause(10);
         }
-    })
+    });
 }
