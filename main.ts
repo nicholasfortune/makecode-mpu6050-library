@@ -190,7 +190,6 @@ namespace MPU6050 {
     
         while (true) {
             if (auto_update) {
-                basic.showNumber(1);
                 let now = input.runningTimeMicros();
     
                 if (last_time == 0) {
@@ -198,29 +197,22 @@ namespace MPU6050 {
                     basic.pause(10);
                     continue;
                 }
-                basic.showNumber(2);
     
                 let dt = (now - last_time) / 1_000_000;
                 last_time = now;
 
-                basic.showNumber(3);
                 if (dt > 0.05) {
                     basic.pause(10);
                     continue;
                 }
-
-                basic.showNumber(4);
     
                 read_3_axis();
                 pitch += pitch_vel * dt;
                 yaw += yaw_vel * dt;
                 roll += roll_vel * dt;
-                basic.showNumber(5);
             } else {
                 last_time = 0;
             }
-    
-            basic.pause(10);
         }
     });
 }
