@@ -187,6 +187,7 @@ namespace MPU6050 {
 
     control.inBackground(function () {
         let last_time = 0;
+    
         while (true) {
             if (auto_update) {
                 let now = input.runningTimeMicros();
@@ -197,13 +198,13 @@ namespace MPU6050 {
                     continue;
                 }
     
-                let dt = (now - last_time) / 1000000;
+                let dt = (now - last_time) / 1_000_000;
+                last_time = now;
+    
                 if (dt > 0.05) {
-                    last_time = now;
                     basic.pause(10);
                     continue;
                 }
-                last_time = now;
     
                 read_3_axis();
                 pitch += pitch_vel * dt;
@@ -212,6 +213,7 @@ namespace MPU6050 {
             } else {
                 last_time = 0;
             }
+    
             basic.pause(10);
         }
     });
