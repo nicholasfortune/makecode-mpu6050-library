@@ -198,7 +198,11 @@ namespace MPU6050 {
                 }
     
                 let dt = (now - last_time) / 1000000;
-                if (dt > 0.05) continue;
+                if (dt > 0.05) {
+                    last_time = now;
+                    basic.pause(10);
+                    continue;
+                }
                 last_time = now;
     
                 read_3_axis();
