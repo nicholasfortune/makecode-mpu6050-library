@@ -197,7 +197,7 @@ namespace MPU6050 {
                     continue;
                 }
     
-                let dt = (now - lastTime) / 1000000;
+                let dt = (now - last_time) / 1000000;
                 if (dt > 0.05) continue;
                 last_time = now;
     
