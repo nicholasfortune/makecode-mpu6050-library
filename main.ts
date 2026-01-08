@@ -188,12 +188,12 @@ namespace MPU6050 {
     control.inBackground(function () {
         while (true) {
             if (auto_update) {
-                let now = input.runningTimeMicros()
-                let dt = (now - lastTime) / 1_000_000
-                lastTime = now
+                let now = input.runningTimeMicros();
+                let dt = (now - lastTime) / 1000000;
+                lastTime = now;
                 
                 read_3_axis()
-                pitch += pitch_ve * dt;
+                pitch += pitch_vel * dt;
                 yaw += yaw_vel * dt;
                 roll += roll_vel * dt;
 
