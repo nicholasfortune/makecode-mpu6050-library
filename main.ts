@@ -212,8 +212,8 @@ namespace MPU6050 {
                 roll += roll_vel * dt;
             } else {
                 last_time = 0;
+                basic.pause(10);
             }
         }
-        basic.pause(10);
     });
 }
