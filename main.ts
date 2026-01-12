@@ -194,7 +194,7 @@ namespace MPU6050 {
     
                 if (last_time == 0) {
                     last_time = now;
-                    basic.pause(10);
+                    basic.pause(1);
                     continue;
                 }
     
@@ -202,7 +202,7 @@ namespace MPU6050 {
                 last_time = now;
 
                 if (dt > 0.05) {
-                    basic.pause(10);
+                    basic.pause(1);
                     continue;
                 }
     
@@ -212,7 +212,7 @@ namespace MPU6050 {
                 roll += roll_vel * dt;
             } else {
                 last_time = 0;
-                basic.pause(10);
+                basic.pause(1);
             }
         }
     });
